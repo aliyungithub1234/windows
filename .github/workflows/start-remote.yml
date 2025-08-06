@@ -8,17 +8,21 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: 下载 GotoHTTP
+    - name: 下载 GotoHTTP zip 包
       run: |
-        Invoke-WebRequest -Uri "https://www.gotohttp.com/download/gotohttp.exe" -OutFile "gotohttp.exe"
+        Invoke-WebRequest -Uri "https://www.gotohttp.com/gotohttp_x64.zip" -OutFile "gotohttp_x64.zip"
 
-    - name: 启动 GotoHTTP 后台服务（默认随机密码）
+    - name: 解压 GotoHTTP
       run: |
-        Start-Process -FilePath ".\gotohttp.exe" -ArgumentList "-quiet" -WindowStyle Hidden
+        Expand-Archive -Path "gotohttp_x64.zip" -DestinationPath ".\gotohttp"
+
+    - name: 启动 GotoHTTP（静默模式）
+      run: |
+        Start-Process -FilePath ".\gotohttp\gotohttp.exe" -ArgumentList "-quiet" -WindowStyle Hidden
 
     - name: 等待 5 秒
       run: Start-Sleep -Seconds 5
 
-    - name: 提示用户设备码或访问方法
+    - name: 输出提示信息
       run: |
-        Write-Output "✅ GotoHTTP 已启动，请访问 https://www.gotohttp.com 并输入当前设备码登录。"
+        Write-Output "✅ GotoHTTP 已启动。请访问 https://www.gotohttp.com 并输入设备码进行连接。"
