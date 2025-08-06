@@ -14,15 +14,20 @@ jobs:
 
     - name: 解压 GotoHTTP
       run: |
-        Expand-Archive -Path "gotohttp_x64.zip" -DestinationPath ".\gotohttp"
+        Expand-Archive -Path "gotohttp_x64.zip" -DestinationPath "gotohttp"
 
-    - name: 启动 GotoHTTP（静默模式）
+    - name: 列出解压后的文件（调试用）
       run: |
-        Start-Process -FilePath ".\gotohttp\gotohttp.exe" -ArgumentList "-quiet" -WindowStyle Hidden
+        Get-ChildItem -Recurse .\gotohttp
+
+    - name: 启动 GotoHTTP（静默）
+      run: |
+        $exePath = Resolve-Path ".\gotohttp\gotohttp.exe"
+        Start-Process -FilePath $exePath -ArgumentList "-quiet" -WindowStyle Hidden
 
     - name: 等待 5 秒
       run: Start-Sleep -Seconds 5
 
-    - name: 输出提示信息
+    - name: 输出提示
       run: |
-        Write-Output "✅ GotoHTTP 已启动。请访问 https://www.gotohttp.com 并输入设备码进行连接。"
+        Write-Output "✅ GotoHTTP 已启动。请访问 https://www.gotohttp.com 并输入设备码进行远程连接。"
