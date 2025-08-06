@@ -19,22 +19,32 @@ jobs:
     - name: 启动 GotoHTTP 并提取设备码
       run: |
         $exePath = Resolve-Path ".\gotohttp\GotoHTTP_x64.exe"
-        $output = & $exePath -quiet -password 123456
-        Write-Output "✅ GotoHTTP 启动输出："
-        Write-Output $output
+        $outputFile = "$env:TEMP\gotohttp_output.txt"
 
-        # 提取设备码
-        $deviceIdLine = $output | Select-String "This device ID:"
-        if ($deviceIdLine -match "This device ID:\s*(\w+)")
-        {
-            $deviceId = $matches[1]
-            Write-Output "-----------------------------"
-            Write-Output "🎯 远程地址：https://www.gotohttp.com/"
-            Write-Output "🔑 设备码：$deviceId"
-            Write-Output "🔐 密码：123456"
-            Write-Output "-----------------------------"
-        }
-        else
-        {
-            Write-Output "❌ 未能提取设备码，可能 GotoHTTP 未正确启动或输出格式变化。"
+        # 启动 GotoHTTP 并写入标准输出文件
+        Start-Process -FilePath $exePath `
+                      -ArgumentList "-quiet -password 123456" `
+                      -RedirectStandardOutput $outputFile `
+                      -WindowStyle Hidden
+
+        Start-Sleep -Seconds 5  # 等待输出完成
+
+        # 读取输出
+        if (Test-Path $outputFile) {
+          $content = Get-Content $outputFile -Raw
+          Write-Output "✅ GotoHTTP 启动输出如下："
+          Write-Output $content
+
+          if ($content -match "This device ID:\s*(\w+)") {
+              $deviceId = $matches[1]
+              Write-Output "-----------------------------"
+              Write-Output "🎯 远程地址：https://www.gotohttp.com/"
+              Write-Output "🔑 设备码：$deviceId"
+              Write-Output "🔐 密码：123456"
+              Write-Output "-----------------------------"
+          } else {
+              Write-Output "❌ 未能提取设备码，输出中未发现匹配行。"
+          }
+        } else {
+          Write-Output "❌ 输出文件不存在，GotoHTTP 未输出任何内容。"
         }
