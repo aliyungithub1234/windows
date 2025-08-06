@@ -1,0 +1,24 @@
+name: Start Windows VM with GotoHTTP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-gotohttp:
+    runs-on: windows-latest
+
+    steps:
+    - name: 下载 GotoHTTP
+      run: |
+        Invoke-WebRequest -Uri "https://www.gotohttp.com/download/gotohttp.exe" -OutFile "gotohttp.exe"
+
+    - name: 启动 GotoHTTP 后台服务（默认随机密码）
+      run: |
+        Start-Process -FilePath ".\gotohttp.exe" -ArgumentList "-quiet" -WindowStyle Hidden
+
+    - name: 等待 5 秒
+      run: Start-Sleep -Seconds 5
+
+    - name: 提示用户设备码或访问方法
+      run: |
+        Write-Output "✅ GotoHTTP 已启动，请访问 https://www.gotohttp.com 并输入当前设备码登录。"
