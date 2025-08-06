@@ -1,4 +1,4 @@
-name: Start Windows VM with GotoHTTP
+name: Start GotoHTTP on Windows
 
 on:
   workflow_dispatch:
@@ -16,18 +16,25 @@ jobs:
       run: |
         Expand-Archive -Path "gotohttp_x64.zip" -DestinationPath "gotohttp"
 
-    - name: 列出解压后的文件（调试）
-      run: |
-        Get-ChildItem -Recurse .\gotohttp
-
-    - name: 启动 GotoHTTP（修正文件名）
+    - name: 启动 GotoHTTP 并提取设备码
       run: |
         $exePath = Resolve-Path ".\gotohttp\GotoHTTP_x64.exe"
-        Start-Process -FilePath $exePath -ArgumentList "-quiet" -WindowStyle Hidden
+        $output = & $exePath -quiet -password 123456
+        Write-Output "✅ GotoHTTP 启动输出："
+        Write-Output $output
 
-    - name: 等待程序初始化
-      run: Start-Sleep -Seconds 5
-
-    - name: 输出提示
-      run: |
-        Write-Output "✅ GotoHTTP 已启动。请访问 https://www.gotohttp.com 并输入设备码连接该 Windows 远程主机。"
+        # 提取设备码
+        $deviceIdLine = $output | Select-String "This device ID:"
+        if ($deviceIdLine -match "This device ID:\s*(\w+)")
+        {
+            $deviceId = $matches[1]
+            Write-Output "-----------------------------"
+            Write-Output "🎯 远程地址：https://www.gotohttp.com/"
+            Write-Output "🔑 设备码：$deviceId"
+            Write-Output "🔐 密码：123456"
+            Write-Output "-----------------------------"
+        }
+        else
+        {
+            Write-Output "❌ 未能提取设备码，可能 GotoHTTP 未正确启动或输出格式变化。"
+        }
