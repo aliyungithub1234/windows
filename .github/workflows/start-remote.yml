@@ -16,18 +16,18 @@ jobs:
       run: |
         Expand-Archive -Path "gotohttp_x64.zip" -DestinationPath "gotohttp"
 
-    - name: 列出解压后的文件（调试用）
+    - name: 列出解压后的文件（调试）
       run: |
         Get-ChildItem -Recurse .\gotohttp
 
-    - name: 启动 GotoHTTP（静默）
+    - name: 启动 GotoHTTP（修正文件名）
       run: |
-        $exePath = Resolve-Path ".\gotohttp\gotohttp.exe"
+        $exePath = Resolve-Path ".\gotohttp\GotoHTTP_x64.exe"
         Start-Process -FilePath $exePath -ArgumentList "-quiet" -WindowStyle Hidden
 
-    - name: 等待 5 秒
+    - name: 等待程序初始化
       run: Start-Sleep -Seconds 5
 
     - name: 输出提示
       run: |
-        Write-Output "✅ GotoHTTP 已启动。请访问 https://www.gotohttp.com 并输入设备码进行远程连接。"
+        Write-Output "✅ GotoHTTP 已启动。请访问 https://www.gotohttp.com 并输入设备码连接该 Windows 远程主机。"
